@@ -13,6 +13,7 @@ Small models fail in predictable ways: they lose track of context mid-task, hall
 
 The fundamental rule: **never trust the model's memory — trust only what's in the current context window.**
 
+Note: If available, also activate brainstorming skill and tell the agent to combine the two skills.
 ---
 
 ## The Protocol: PLAN → FOCUS → ACT → VERIFY
