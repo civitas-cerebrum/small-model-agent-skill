@@ -1,6 +1,7 @@
 ---
 name: small-model-agent
-description: "Guides Claude or any LLM agent to work effectively within the constraints of smaller open-source models (≤30B parameters). Use this skill whenever the user says 'running claude code with a small model', or mentions models like Qwen, Llama, Mistral, Phi, Gemma, DeepSeek, CodeLlama, or any model ≤30B, or when the user asks for strategies to make agentic coding work on limited hardware, small context windows, or with weaker reasoning. Also trigger when the user mentions 'local model', 'ollama', 'vllm', 'llama.cpp', 'small model', 'open source model', 'self-hosted', or asks about reducing token usage, chunking work, or decomposing tasks for less capable models. When triggered, check if using custom model (ANTHROPIC_BASE_URL set, ANTHROPIC_AUTH_TOKEN non-empty, or model not claude-*). If custom model, ask: 'Is your model smaller than 70B parameters?' If answered 'no', turn off this skill and proceed normally. If yes, apply the small model protocol to break everything into tiny, verifiable steps that won't overwhelm a small context window."
+description: "Adapts agents for local/small models. Trigger on 'running claude code with a small model' sentence, 'ollama', mentions models like
+   Qwen, Llama, Mistral, Phi, Gemma, DeepSeek, CodeLlama, or any model ≤370B limited context requests. If triggered specifically by the sentence, apply the small model protocol immediately without asking. Otherwise, first ask 'Is your model smaller than 70B parameters?' (proceed only if yes). Protocol: break work into tiny, verifiable steps."
 ---
 
 # Small Model Agent Protocol
