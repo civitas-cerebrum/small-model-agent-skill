@@ -1,112 +1,62 @@
 # Small Model Agent Skill
 
-A set of protocols and patterns to help smaller language models (≤30B parameters) work effectively in agentic coding scenarios.
+A skill that teaches AI coding agents how to work reliably within the constraints of smaller open-source models (≤30B parameters).
+
+## The Problem
+
+Small models fail in predictable ways when used as coding agents: they lose context mid-task, hallucinate APIs, attempt refactors they can't hold in memory, and generate plausible-but-broken code. These failures aren't random — they follow patterns that can be prevented with the right discipline.
 
 ## What This Skill Does
 
-This skill provides a structured framework for using limited-capacity models for real coding tasks. When working with models that have:
-- Small context windows (4K–16K tokens)
-- Weaker reasoning capabilities
-- Limited memory (in self-hosted or local setups)
-- Reduced output generation
+When loaded by an agent, this skill enforces a **PLAN → FOCUS → ACT → VERIFY** loop that breaks every task into tiny, verifiable steps. The agent reads less, edits less, and checks more — trading speed for reliability.
 
-This skill transforms how the agent plans, edits, and validates work—breaking everything into tiny, verifiable steps that won't overwhelm the model's constraints.
-
-## Core Philosophy
-
-**The fundamental rule:** Never trust the model's memory — trust only what's in the current context window.
-
-Small models fail in predictable ways:
-- They lose track of context mid-task
-- They hallucinate file contents they read long ago
-- They attempt multi-file refactors they can't hold in memory
-- They generate plausible-but-broken code when instructions are complex
-
-This skill prevents those failures by enforcing:
-- **Tiny scope** — Each change is small and verifiable
-- **Constant verification** — Every step is confirmed before moving on
-- **Explicit state tracking** — Always know what you have and haven't seen
-
-## The Workflow
-
-Every task follows this loop: **PLAN → FOCUS → ACT → VERIFY**
-
-1. **PLAN** — Decompose before touching anything
-   - Break tasks into 2-file, sentence-length steps
-   - Each step has a concrete verification
-   - Never remember content from previous steps
-
-2. **FOCUS** — Load only what you need
-   - Read only the sections you need
-   - Keep at most 2 files in working context
-   - Never read a file all at once if it's >150 lines
-
-3. **ACT** — Make small, surgical edits
-   - Fewer than 30 lines per edit
-   - Prefer `str_replace` over rewriting entire files
-   - Never generate boilerplate from memory
-
-4. **VERIFY** — Confirm every step
-   - Run tests, grep for changes, read back
-   - If verification fails, re-read and fix
-   - Stop after 3 failures on the same step
-
-## Key Components
-
-### Task Size Boundaries
-| Task size | Files | Lines changed | Approach |
-|-----------|-------|---------------|----------|
-| Tiny | 1 | <15 | Direct edit + verify |
-| Small | 1–2 | 15–50 | Plan → 2–4 steps |
-| Medium | 2–3 | 50–150 | Plan → sub-tasks |
-| Large | 4+ | 150+ | Multiple independent tasks |
-
-### Common Failure Modes
-- **Context drift** — Re-read before every edit
-- **Phantom APIs** — Grep before calling functions
-- **Scope creep** — Stick to the written plan
-- **Partial generation** — Incremental file building
-- **Echo errors** — Verify after each step
-
-## Usage
-
-This skill is designed to work with any agentic coding framework:
-- Claude Code
-- aider
-- continue.dev
-- open-interpreter
-- cursor agent
-- ollama, llama.cpp, vllm
-- llama.cpp, DeepSeek, CodeLlama, Llama, Mistral, Phi, Gemma, Qwen
-
-### Integration Tips
-
-**For framework-level support:**
-- If truncating tool results, enable it (small models shouldn't see 500-line file reads)
-- Include Planning Template and Working Memory Notebook in system prompts
-- Enable conversation compaction every ~5 turns
-
-**For local models:**
-- Set `num_ctx` to the model's full capacity
-- Set `num_predict` to ~1024 to prevent runaway generation
-
-## Files
-
-- **SKILL.md** — The complete protocol and guidelines
-- **TESTING.md** — How to test this skill
-- **failure-modes.md** — Detailed patterns of small model failures
-- **language-tips.md** — Language/framework-specific guidance
-- **evals.json** — Performance evaluation results
-- **run-tests.js** — Test runner script
+The skill includes:
+- **SKILL.md** — The full protocol the agent follows (the core of this project)
+- **failure-modes.md** — Catalogue of how small models fail, with specific countermeasures
+- **language-tips.md** — Per-language strategies (TypeScript, Python, Rust, Go, Java, Kotlin, Swift, C#, Elixir, Zig, and more)
 
 ## Who This Is For
 
-This skill is essential when:
-- You're working with local/open-source models
-- Hardware constraints limit model size
-- You need reliable coding but can't afford large models
-- Context windows are limited (mobile, edge, or constrained environments)
+You, a human, who wants to use a local/open-source model as a coding agent and is tired of it breaking things. This skill is relevant when:
+- You're running models via **ollama**, **llama.cpp**, or **vllm**
+- Your model is ≤30B parameters (Qwen, Llama, Mistral, Phi, Gemma, DeepSeek, etc.)
+- Context windows are limited (4K–32K tokens)
+- You want reliable agentic coding without paying for large cloud models
 
-## Alternatives
+## Setup
 
-For powerful models (Claude 3.5 Sonnet, GPT-4, etc.), this skill may feel overly cautious. The tradeoff of predictability and reliability for smaller models is worth the overhead.
+### With Claude Code + Ollama (recommended)
+
+If you use the `lets-claude` launcher script, the skill triggers automatically — the script injects `"running claude code with a small model"` as the first message, which activates the skill.
+
+```bash
+lets-claude --model qwen
+```
+
+### With other frameworks
+
+The protocol in `SKILL.md` works with any agentic coding framework (aider, continue.dev, cursor agent, open-interpreter, etc.). To integrate:
+
+1. Include the content of `SKILL.md` in your system prompt or agent instructions
+2. If the framework supports **tool result truncation**, enable it
+3. If the framework supports **conversation compaction**, enable it aggressively (~5 turns for 8K context models)
+4. Set `num_ctx` to the model's full capacity and `num_predict` to ~1024 to prevent runaway generation
+
+## Files
+
+| File | Audience | Purpose |
+|------|----------|---------|
+| `SKILL.md` | Agent | The complete protocol — this is what the agent reads and follows |
+| `failure-modes.md` | Agent | Detailed failure patterns and countermeasures |
+| `language-tips.md` | Agent | Per-language and per-framework guidance |
+| `TESTING.md` | Human | How to run the eval suite |
+| `evals.json` | Human | Test cases for validating skill triggers |
+| `run-tests.js` | Human | Test runner script |
+
+## Testing
+
+```bash
+node run-tests.js
+```
+
+See [TESTING.md](TESTING.md) for details.

@@ -119,6 +119,112 @@ Small models are surprisingly bad at CSS. Common issues:
 
 ---
 
+## Java
+
+**The compiler and IDE are your safety net.** After every edit, run `mvn compile` or `gradle build`. Java's strict typing catches most model mistakes at compile time.
+
+**Common model mistakes in Java:**
+- Wrong package/import paths — check existing imports in the file before adding new ones: `grep "^import" src/main/java/com/example/TargetFile.java`
+- Mixing up similar classes (`List` vs `ArrayList`, `Map` vs `HashMap`) — match what the file already uses
+- Wrong exception handling — check if the method signature declares `throws` before adding try/catch
+- Annotation mistakes (`@Override`, `@Autowired`, `@Inject`) — grep for existing usage patterns in the project
+
+**Spring/Jakarta-specific:**
+- Read existing controller/service patterns before adding new ones — Spring has many ways to do the same thing
+- Check existing `application.properties` / `application.yml` before adding config
+- For dependency injection, match the project's style (`@Autowired` field injection vs constructor injection)
+
+---
+
+## Kotlin
+
+**Lean on the compiler.** Run `gradle build` or `kotlinc` after every edit. Kotlin's null-safety and type inference catch many errors.
+
+**Common model mistakes in Kotlin:**
+- Confusing `val` vs `var`, `?` vs `!!` — read existing code to match the project's null-handling style
+- Wrong coroutine scope usage — grep for `launch`, `async`, `runBlocking` to see the existing pattern
+- Mixing Java and Kotlin idioms — check if the file uses Kotlin idioms (`let`, `apply`, `also`) or Java-style code, and match it
+
+**Android-specific:**
+- Edit one Activity/Fragment at a time. Never change a Fragment and its hosting Activity in the same step.
+- Check existing lifecycle handling before adding new callbacks
+- Verify resource IDs exist: `grep -r "R.id.your_id" src/`
+
+---
+
+## Swift
+
+**Use the compiler aggressively.** Run `swift build` or `xcodebuild` after every edit. Swift's type system is strict and informative.
+
+**Common model mistakes in Swift:**
+- Optional handling — models frequently forget `?`, `!`, `guard let`, `if let`. Read the existing pattern in the file before editing
+- Wrong `struct` vs `class` choice — check what the project uses for similar types
+- Protocol conformance — read the protocol definition first, implement methods one at a time
+- Mixing up `@State`, `@Binding`, `@ObservedObject`, `@StateObject` in SwiftUI — grep for existing usage patterns
+
+**iOS-specific:**
+- Edit one View/ViewController at a time
+- Check existing storyboard/XIB connections before modifying outlets
+- For SwiftUI, verify the preview compiles after each edit
+
+---
+
+## C# / .NET
+
+**`dotnet build` after every edit.** C#'s compiler is strict and provides clear error messages.
+
+**Common model mistakes in C#:**
+- Wrong namespace/using statements — check existing usings at the top of the file
+- Mixing up `async Task` vs `async void` — `async void` is almost always wrong except for event handlers
+- LINQ mistakes — models generate plausible-but-wrong LINQ chains. Test with a small dataset first
+- Dependency injection registration — check `Program.cs` or `Startup.cs` for existing DI patterns
+
+**ASP.NET-specific:**
+- Read existing controller patterns before adding new endpoints
+- Check `appsettings.json` for config structure before adding new config
+- Match existing middleware ordering — middleware order matters in ASP.NET
+
+---
+
+## Elixir
+
+**Run `mix compile` after every edit.** Elixir's compiler warnings catch most issues.
+
+**Common model mistakes in Elixir:**
+- Wrong pattern matching — models often generate patterns that don't match the actual data shape. Always read the calling code to see what's being passed
+- Pipe operator mistakes — models chain `|>` incorrectly, especially with functions that take multiple args
+- Module naming — verify the module exists: `grep -r "defmodule.*ModuleName" lib/`
+
+**Phoenix-specific:**
+- Read existing router/controller/context patterns before adding new ones
+- Check existing migration style before writing new migrations
+- Verify schema fields match the database: read the latest migration
+
+---
+
+## Zig
+
+**`zig build` after every edit.** Zig's compiler errors are detailed and usually point to the exact fix.
+
+**Common model mistakes in Zig:**
+- Memory management — models forget `defer` for cleanup or use wrong allocators. Grep for the allocator pattern used in the file
+- Error handling — Zig uses `try`, `catch`, error unions. Read existing functions to match the pattern
+- Comptime vs runtime confusion — don't generate comptime code from memory, read existing examples
+
+---
+
+## Python (addendum)
+
+**Use static analysis when available.** If the project has `mypy` or `pyright` configured, run them after every edit — they catch type errors that runtime testing misses:
+```bash
+mypy target.py --no-error-summary
+# or
+pyright target.py
+```
+Check for config: `ls mypy.ini pyproject.toml setup.cfg` and grep for `[mypy]` or `[tool.pyright]`.
+
+---
+
 ## General Principles Across All Languages
 
 1. **Copy existing patterns.** The safest code a small model can write is a close adaptation of existing code in the project. `grep` for similar functionality before writing anything new.

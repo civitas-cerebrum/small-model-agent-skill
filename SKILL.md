@@ -1,6 +1,6 @@
 ---
 name: small-model-agent
-description: "Guides Claude or any LLM agent to work effectively within the constraints of smaller open-source models (≤30B parameters). Use this skill whenever the agent is a small/local/open-source model, when the user mentions models like Qwen, Llama, Mistral, Phi, Gemma, DeepSeek, CodeLlama, or any model ≤30B, or when the user asks for strategies to make agentic coding work on limited hardware, small context windows, or with weaker reasoning. Also trigger when the user mentions 'local model', 'ollama', 'vllm', 'llama.cpp', 'small model', 'open source model', 'self-hosted', or asks about reducing token usage, chunking work, or decomposing tasks for less capable models. Additionally trigger when the user says: 'analyze the repo', 'setup the project', 'get started', 'working with this codebase', 'project exploration', 'codebase analysis', 'understand this project', 'start working on', 'examine this code', 'plan the work', 'break down this task', 'decompose the work', 'understand the architecture', 'explore this code', 'study this project', 'figure out how this works', 'review the codebase', 'examine the code', 'understand this system'. When triggered, check if using custom model (ANTHROPIC_BASE_URL set, ANTHROPIC_AUTH_TOKEN non-empty, or model not claude-*). If custom model, ask: 'Is your model smaller than 70B parameters?' If answered 'no', turn off this skill and proceed normally. If yes, apply the small model protocol to break everything into tiny, verifiable steps that won't overwhelm a small context window."
+description: "Guides Claude or any LLM agent to work effectively within the constraints of smaller open-source models (≤30B parameters). Use this skill whenever the user says 'running claude code with a small model', or mentions models like Qwen, Llama, Mistral, Phi, Gemma, DeepSeek, CodeLlama, or any model ≤30B, or when the user asks for strategies to make agentic coding work on limited hardware, small context windows, or with weaker reasoning. Also trigger when the user mentions 'local model', 'ollama', 'vllm', 'llama.cpp', 'small model', 'open source model', 'self-hosted', or asks about reducing token usage, chunking work, or decomposing tasks for less capable models. When triggered, check if using custom model (ANTHROPIC_BASE_URL set, ANTHROPIC_AUTH_TOKEN non-empty, or model not claude-*). If custom model, ask: 'Is your model smaller than 70B parameters?' If answered 'no', turn off this skill and proceed normally. If yes, apply the small model protocol to break everything into tiny, verifiable steps that won't overwhelm a small context window."
 ---
 
 # Small Model Agent Protocol
@@ -58,7 +58,16 @@ Context is precious. Treat it like a scarce resource.
 - Before editing, always re-read the target section. Don't rely on content you read more than ~1500 tokens ago.
 - If a file is longer than **150 lines**, never read it all at once. Read the structure first (first 30 lines + grep for functions/classes), then zoom into the section you need.
 
-**Context budget** — think of each step as having a budget:
+**Context budget by model size:**
+
+| Context window | Max lines per read | Max edit size | Max files in context | Compaction frequency |
+|----------------|-------------------|---------------|---------------------|---------------------|
+| 4K tokens      | 30 lines          | 10 lines      | 1                   | Every 2–3 turns     |
+| 8K tokens      | 60 lines          | 20 lines      | 1–2                 | Every 4–5 turns     |
+| 16K tokens     | 100 lines         | 30 lines      | 2                   | Every 6–8 turns     |
+| 32K tokens     | 150 lines         | 50 lines      | 2–3                 | Every 10 turns      |
+
+Within each step, budget roughly:
 - ~30% for reading/understanding the current state
 - ~50% for the edit or generation
 - ~20% for verification output
@@ -92,7 +101,11 @@ If a verification fails:
 3. Fix it with a single targeted edit
 4. Re-verify
 
-If verification fails **3 times on the same step**, stop and report the issue. Don't spiral.
+If verification fails **3 times on the same step**, the step is too big. Break it down:
+1. Split the failing step into 2–3 smaller sub-steps, each with its own verification
+2. Re-read all relevant files fresh (discard your mental model — it's probably wrong)
+3. Attempt the first sub-step
+4. If the sub-steps also fail, ask the user for help. Don't spiral.
 
 ---
 
@@ -132,7 +145,7 @@ For **large** tasks, complete and verify each sub-task fully before starting the
 
 ## Common Failure Modes and Countermeasures
 
-Read `references/failure-modes.md` for detailed patterns of how small models fail and specific countermeasures for each. The most critical ones:
+Read `failure-modes.md` for detailed patterns of how small models fail and specific countermeasures for each. The most critical ones:
 
 1. **Context drift** — The model forgets what it read 2000 tokens ago. Countermeasure: re-read before every edit, keep the working memory notebook updated.
 
@@ -148,7 +161,7 @@ Read `references/failure-modes.md` for detailed patterns of how small models fai
 
 ## Language and Framework-Specific Guidance
 
-Read `references/language-tips.md` for tips on handling specific languages and frameworks with small models. Key principles:
+Read `language-tips.md` for tips on handling specific languages and frameworks with small models. Key principles:
 
 - For **typed languages** (TypeScript, Rust, Go), lean hard on the compiler. Run type-checking after every edit — it catches errors the model can't reason about.
 - For **Python**, run the specific test or a quick smoke test after every edit. Without a type-checker, runtime is your safety net.
