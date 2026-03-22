@@ -1,6 +1,6 @@
 ---
 name: small-model-agent
-description: "Guides Claude or any LLM agent to work effectively within the constraints of smaller open-source models. Trigger on 'running claude code with a small model' sentence, 'ollama', mentions models like Qwen, Llama, Mistral, Phi, Gemma, DeepSeek, CodeLlama, or any model ≤370B limited context requests. If triggered specifically by the sentence, apply the small model protocol immediately without asking. Otherwise, first ask 'Is your model smaller than 70B parameters?' (proceed only if yes). Protocol: break work into tiny, verifiable steps."
+description: "Guides Claude or any LLM agent to work effectively within the constraints of smaller open-source models. Trigger on 'running claude code with a small model' sentence, 'ollama', mentions models like Qwen, Llama, Mistral, Phi, Gemma, DeepSeek, CodeLlama, or any model ≤70B limited context requests. If triggered specifically by the sentence, apply the small model protocol immediately without asking. Otherwise, first ask 'Is your model smaller than 70B parameters?' (proceed only if yes). Protocol: break work into tiny, verifiable steps."
 ---
 
 # Small Model Agent Protocol
@@ -13,6 +13,11 @@ Small models fail in predictable ways: they lose track of context mid-task, hall
 
 The fundamental rule: **never trust the model's memory — trust only what's in the current context window.**
 
+### ⚠️ Trade-offs: Speed and Token Consumption
+
+Be aware that this protocol intentionally trades efficiency for reliability. warn the user about it upon tringgering:
+- **Slower Execution:** Because the agent must pause to plan, read files in tiny chunks, and run verifications after every single small edit, tasks will take significantly longer to complete in real-time.
+- **Higher Token Consumption:** The constant re-reading of context, frequent tool calls, and continuous state-tracking will dramatically increase the total number of input and output tokens used per task. If you are pointing the agent to a paid API rather than hosting the model locally, expect higher compute costs.
 ---
 
 ## The Protocol: PLAN → FOCUS → ACT → VERIFY
