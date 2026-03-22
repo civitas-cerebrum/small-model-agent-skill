@@ -1,0 +1,135 @@
+{
+  "skill_name": "small-model-agent",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm running Qwen2.5-Coder-32B through aider and it keeps making broken edits to my React app. It tries to refactor 3 files at once and ends up hallucinating component props that don't exist. How should I set it up so it works better?",
+      "expected_output": "Should trigger the skill. Response should include: decomposing into single-file steps, re-reading files before edits, grep-based verification of props/APIs, the PLAN→FOCUS→ACT→VERIFY loop, and specific React advice (one component per step). Should NOT just say 'use a bigger model.'",
+      "assertions": [
+        {
+          "type": "content_contains",
+          "value": "plan",
+          "description": "Mentions planning/decomposition"
+        },
+        {
+          "type": "content_contains",
+          "value": "verify",
+          "description": "Mentions verification after each step"
+        },
+        {
+          "type": "content_contains",
+          "value": "grep",
+          "description": "Recommends grep to verify APIs/props exist before using them"
+        },
+        {
+          "type": "content_contains",
+          "value": "one",
+          "description": "Recommends working on one file/component at a time"
+        },
+        {
+          "type": "content_not_contains",
+          "value": "use a larger model",
+          "description": "Does not simply recommend switching to a bigger model"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "I want to use a local 7B model with ollama as a coding agent. What's the best strategy for having it add a new REST endpoint to an existing Express.js API? The codebase has about 40 files.",
+      "expected_output": "Should trigger the skill. Response should: (1) recommend decomposing the task into tiny steps, (2) advise reading existing routes first and copying their pattern, (3) suggest a concrete step-by-step plan template, (4) mention context window management and not reading all 40 files, (5) include verification steps like running the server and testing the endpoint. Should mention the working memory notebook concept.",
+      "assertions": [
+        {
+          "type": "content_contains",
+          "value": "existing",
+          "description": "Advises reading/copying existing route patterns"
+        },
+        {
+          "type": "content_contains",
+          "value": "step",
+          "description": "Provides step-by-step approach"
+        },
+        {
+          "type": "content_contains",
+          "value": "context",
+          "description": "Addresses context window limitations"
+        },
+        {
+          "type": "content_contains",
+          "value": "test",
+          "description": "Includes testing/verification"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "My Llama 3.1 8B agent keeps inventing function names that don't exist in my Python codebase. It confidently writes calls to utils.validate_schema() but that function isn't there. How do I prevent this?",
+      "expected_output": "Should trigger the skill and specifically address the Phantom APIs failure mode. Should recommend: grep-before-use pattern, reading actual module contents before importing, checking existing usages in the codebase, and using the anti-hallucination rules. Should provide concrete grep commands.",
+      "assertions": [
+        {
+          "type": "content_contains",
+          "value": "grep",
+          "description": "Recommends grep to verify functions exist"
+        },
+        {
+          "type": "content_contains",
+          "value": "read",
+          "description": "Advises reading the actual file/module before using it"
+        },
+        {
+          "type": "content_contains",
+          "value": "before",
+          "description": "Emphasizes checking before writing calls"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "I need to do a large refactor across 12 files — migrating from class components to hooks in React. Can my DeepSeek-Coder 33B handle this as an agent?",
+      "expected_output": "Should trigger the skill. Should advise that this is a 'too large' task for a single pass and recommend: splitting into independent per-component migrations, doing one component at a time with full verification (tests pass, app renders), maintaining a checklist, and the working memory notebook to track progress. Should reference the task size boundaries table.",
+      "assertions": [
+        {
+          "type": "content_contains",
+          "value": "split",
+          "description": "Recommends splitting the task"
+        },
+        {
+          "type": "content_contains",
+          "value": "one",
+          "description": "Advises migrating one component at a time"
+        },
+        {
+          "type": "content_contains",
+          "value": "verify",
+          "description": "Emphasizes verification between each migration"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "What system prompt or instructions should I give to a Mistral-Small model to make it work well as a coding agent in my VS Code extension?",
+      "expected_output": "Should trigger the skill and provide concrete prompt engineering advice: structured output forcing, one-shot examples, negative examples ('do NOT...'), checkpoint prompts, the planning template format, the working memory notebook, and context budget rules. Should be practical and copy-pasteable, not abstract.",
+      "assertions": [
+        {
+          "type": "content_contains",
+          "value": "plan",
+          "description": "Includes planning template or structured approach"
+        },
+        {
+          "type": "content_contains",
+          "value": "example",
+          "description": "Recommends including examples in prompts"
+        },
+        {
+          "type": "content_contains",
+          "value": "NOT",
+          "description": "Recommends negative instructions"
+        },
+        {
+          "type": "content_contains",
+          "value": "verify",
+          "description": "Includes verification in the prompt strategy"
+        }
+      ]
+    }
+  ]
+}
