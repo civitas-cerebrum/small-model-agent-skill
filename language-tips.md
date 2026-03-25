@@ -38,6 +38,14 @@ python -m pytest tests/test_target.py::test_specific -x -v
 python -c "import ast; ast.parse(open('target.py').read())"
 ```
 
+**Use static analysis when available.** If the project has `mypy` or `pyright` configured, run them after every edit — they catch type errors that runtime testing misses:
+```bash
+mypy target.py --no-error-summary
+# or
+pyright target.py
+```
+Check for config: `ls mypy.ini pyproject.toml setup.cfg` and grep for `[mypy]` or `[tool.pyright]`.
+
 **Virtual environment awareness:**
 - Before installing anything, check what's already installed: `pip list | grep <package>`
 - Before importing, verify the package name matches the import name (they often differ): `python -c "import <module_name>"`
@@ -210,18 +218,6 @@ Small models are surprisingly bad at CSS. Common issues:
 - Memory management — models forget `defer` for cleanup or use wrong allocators. Grep for the allocator pattern used in the file
 - Error handling — Zig uses `try`, `catch`, error unions. Read existing functions to match the pattern
 - Comptime vs runtime confusion — don't generate comptime code from memory, read existing examples
-
----
-
-## Python (addendum)
-
-**Use static analysis when available.** If the project has `mypy` or `pyright` configured, run them after every edit — they catch type errors that runtime testing misses:
-```bash
-mypy target.py --no-error-summary
-# or
-pyright target.py
-```
-Check for config: `ls mypy.ini pyproject.toml setup.cfg` and grep for `[mypy]` or `[tool.pyright]`.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: small-model-agent                                                                                                                        
-description: "Guides Claude or any LLM agent to work effectively within the constraints of smaller open-source models. Trigger immediately and apply the small model protocol without asking if the user says the exact phrase 'running claude code with a small model' followed by any model name (e.g., 'running claude code with a small model Llama-3-8b'). Also trigger on mentions of 'ollama', specific models like Qwen, Llama, Mistral, Phi, Gemma, DeepSeek, CodeLlama, or any model ≤70B limited context requests. If triggered by these other keywords instead of the key sentence, first ask 'Is your model smaller than 70B parameters?' (proceed only if yes). Protocol: break work into tiny, verifiable steps."
+description: "Guides Claude or any LLM agent to work effectively within the constraints of smaller open-source models. Trigger immediately and apply the small model protocol without asking if the user says the exact phrase 'running claude code with a small model' followed by any model name (e.g., 'running claude code with a small model Llama-3-8b'). Also trigger immediately (no clarifying question needed) when the user mentions: 'ollama', or specific model names like Qwen, Llama, Mistral, Phi, Gemma, DeepSeek, CodeLlama, GLM — these are always small models. Only ask 'Is your model smaller than 70B parameters?' for ambiguous references (e.g., generic 'local model', 'open-source model') where the size is genuinely unclear. Protocol: break work into tiny, verifiable steps."
 ---
 
 # Small Model Agent Protocol
@@ -13,7 +13,7 @@ Small models fail in predictable ways: they lose track of context mid-task, hall
 
 The fundamental rule: **never trust the model's memory — trust only what's in the current context window.**
 
-Note: If available, also activate brainstorming skill and tell the agent to combine the two skills.
+**Required companion skill:** If the `superpowers:brainstorming` skill is available, invoke it before starting any task. Tell the agent to combine both skills: use brainstorming to understand intent and scope the work, then apply this protocol to execute it safely within the model's constraints.
 ---
 
 ## The Protocol: PLAN → FOCUS → ACT → VERIFY
@@ -136,9 +136,9 @@ Use these heuristics to decide if a task is appropriate for a single pass:
 |-----------|-------|---------------|----------|
 | Tiny | 1 | <15 | Direct edit + verify |
 | Small | 1–2 | 15–50 | Plan → 2–4 steps |
-| Medium | 2–3 | 50–150 | Plan → sub-tasks of 3–5 steps each |
-| Large | 4+ | 150+ | Decompose into multiple independent medium tasks |
-| Too large | 6+ | 300+ | Refuse or ask user to scope down |
+| Medium | 2–4 | 50–200 | Plan → sub-tasks of 3–5 steps each |
+| Large | 5–6 | 200–400 | Decompose into multiple independent medium tasks |
+| Too large | 7+ | 400+ | Refuse or ask user to scope down |
 
 For **large** tasks, complete and verify each sub-task fully before starting the next. The sub-tasks should be designed so that each one leaves the codebase in a working state.
 
@@ -185,11 +185,23 @@ When the user is constructing prompts for a small model agent, recommend these p
 
 ---
 
+## Usage Modes
+
+This skill operates in two distinct modes depending on who is running it:
+
+**Mode 1 — Large model orchestrating a small model** (e.g., Claude Code reading this skill to generate prompts or instructions that a small model will execute): Focus on the Prompt Patterns section. Your job is to structure tasks so the small model receives one clear, bounded instruction at a time, with an example and explicit constraints. Re-inject the current state as a fresh prompt between steps rather than relying on the small model's conversation history.
+
+**Mode 2 — Small model running this skill itself** (e.g., Qwen or Mistral is the active agent in Claude Code): The model reading these instructions IS the model with limited context. In this case: keep the working memory notebook brief (3–5 lines max), skip re-reading sections of this skill after the initial load (those tokens are gone), and be aggressive about context compaction. Prioritize the PLAN → FOCUS → ACT → VERIFY loop over everything else — that loop is the minimum viable protocol for staying coherent.
+
+When in doubt about which mode applies: if the model can hold this entire skill in context alongside the codebase, it's Mode 1. If the skill itself is crowding out the code, it's Mode 2.
+
+---
+
 ## Integration Notes
 
 This protocol works with any agentic coding framework: Claude Code, aider, continue.dev, open-interpreter, cursor agent, etc. The key integration points:
 
 - If the framework supports **tool result truncation**, enable it — small models shouldn't see 500-line file reads.
 - If the framework supports **system prompt injection**, include the Planning Template and Working Memory Notebook format in the system prompt.
-- If using **ollama** or **llama.cpp**, set `num_ctx` to the model's full capacity and `num_predict` to ~1024 to prevent runaway generation.
+- If using **ollama** or **llama.cpp**, set `num_ctx` to the model's full capacity and set `num_predict` based on the operation: ~1024 for edits and targeted changes, ~2048 for generating new file sections. Higher values risk runaway generation; lower values risk truncation mid-function.
 - If the framework supports **conversation compaction**, enable it aggressively — every ~5 turns is a good cadence for 8K context models.
