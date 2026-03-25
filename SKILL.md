@@ -1,6 +1,6 @@
 ---
-name: small-model-agent
-description: "Guides Claude or any LLM agent to work effectively within the constraints of smaller open-source models. Trigger on 'running claude code with a small model' sentence, 'ollama', mentions models like Qwen, Llama, Mistral, Phi, Gemma, DeepSeek, CodeLlama, or any model ≤70B limited context requests. If triggered specifically by the sentence, apply the small model protocol immediately without asking. Otherwise, first ask 'Is your model smaller than 70B parameters?' (proceed only if yes). Protocol: break work into tiny, verifiable steps."
+name: small-model-agent                                                                                                                        
+description: "Guides Claude or any LLM agent to work effectively within the constraints of smaller open-source models. Trigger immediately and apply the small model protocol without asking if the user says the exact phrase 'running claude code with a small model' followed by any model name (e.g., 'running claude code with a small model Llama-3-8b'). Also trigger on mentions of 'ollama', specific models like Qwen, Llama, Mistral, Phi, Gemma, DeepSeek, CodeLlama, or any model ≤70B limited context requests. If triggered by these other keywords instead of the key sentence, first ask 'Is your model smaller than 70B parameters?' (proceed only if yes). Protocol: break work into tiny, verifiable steps."
 ---
 
 # Small Model Agent Protocol
