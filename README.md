@@ -1,3 +1,11 @@
+> **⚠️ Deprecated.** This repo has been superseded by
+> **[small-agents](https://github.com/civitas-cerebrum/small-agents)**, which
+> carries this protocol forward and adds the two things it lacked: a
+> diagnostic loop for investigation, and hooks that enforce the rules rather
+> than only stating them.
+>
+> See [MIGRATION.md](https://github.com/civitas-cerebrum/small-agents/blob/main/MIGRATION.md).
+
 # Small Model Agent Skill
 
 A skill that teaches AI coding agents how to work reliably within the constraints of smaller open-source models (≤30B parameters).
